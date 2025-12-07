@@ -39,7 +39,7 @@ const NoteList = ({ notes }: NoteListProps) => {
                 View details
               </Link>
               <button
-                disabled={mutation.isPending} // <- здесь используется isPending
+                disabled={mutation.isPending}
                 onClick={() => mutation.mutate(note.id)}
                 className={css.button}
               >
