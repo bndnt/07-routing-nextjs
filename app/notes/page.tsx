@@ -4,7 +4,7 @@ import {
   dehydrate,
   QueryClient,
 } from "@tanstack/react-query";
-import NotesClient from "@/app/(public routes)/notes/filter/[...tag]/Notes.client";
+import NotesClient from "@/app/notes/filter/[...slug]/Notes.client";
 
 async function NotePage() {
   const queryClient = new QueryClient();
