@@ -1,39 +1,27 @@
-"use client";
-
-import { useRouter, useParams } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
 import Modal from "@/components/Modal/Modal";
-import NotePreview from "./NotePreview.client";
+import NotePreviewClient from "./NotePreview.client";
 import { fetchNoteById } from "@/lib/api";
-import { Note } from "@/types/note";
+import { QueryClient, dehydrate } from "@tanstack/react-query";
 
-const NotePreviewPage = () => {
-  const router = useRouter();
-  const params = useParams();
-  const noteId = params?.id;
-  const noteIdParam = Array.isArray(noteId) ? noteId[0] : noteId;
+interface NotePreviewPageProps {
+  params: { id: string } | Promise<{ id: string }>; // допустимо Promise
+}
 
-  const {
-    data: note,
-    isLoading,
-    isError,
-  } = useQuery<Note>({
-    queryKey: ["note", noteIdParam],
-    queryFn: () => fetchNoteById(noteIdParam!),
-    enabled: !!noteIdParam,
+export default async function NotePreviewPage({
+  params,
+}: NotePreviewPageProps) {
+  // Розпаковуємо Promise, якщо params — проміс
+  const { id } = await params;
+
+  const queryClient = new QueryClient();
+  await queryClient.prefetchQuery({
+    queryKey: ["note", id],
+    queryFn: () => fetchNoteById(id),
   });
 
-  if (!noteIdParam) return null;
-
-  if (isLoading) return <Modal onClose={() => router.back()}>Loading...</Modal>;
-  if (isError || !note)
-    return <Modal onClose={() => router.back()}>Note not found</Modal>;
-
   return (
-    <Modal onClose={() => router.back()}>
-      <NotePreview note={note} onClose={() => router.back()} />
+    <Modal>
+      <NotePreviewClient noteId={id} dehydratedState={dehydrate(queryClient)} />
     </Modal>
   );
-};
-
-export default NotePreviewPage;
+}

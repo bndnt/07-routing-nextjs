@@ -5,32 +5,31 @@ export interface FetchNotesResponse {
   page: number;
   notes: Note[];
   totalPages: number;
-
-  // total_results: number;
 }
 
 export async function fetchNotes(
-  search: string,
-  page: number
+  page: number = 1,
+  search: string = "",
+  tag: string = "all" // default "all"
 ): Promise<FetchNotesResponse> {
-  // search: string
-  // page: number
   const token = process.env.NEXT_PUBLIC_NOTEHUB_TOKEN;
 
-  const response = await axios.get<FetchNotesResponse>(`${BASE_URL}`, {
-    params: {
-      search,
-      // include_adult: false,
-      // language: "en-US",
-      page,
-    },
+  const params: Record<string, any> = { page, search };
+  if (tag.toLowerCase() !== "all") {
+    params.tag = tag; //  tag if not "all"
+  }
+
+  const response = await axios.get<FetchNotesResponse>(BASE_URL, {
+    params,
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
-  console.log(response.data);
 
-  return response.data;
+  return {
+    ...response.data,
+    notes: response.data.notes || [],
+  };
 }
 export const createNote = async (data: CreateNoteData) => {
   const token = process.env.NEXT_PUBLIC_NOTEHUB_TOKEN;
@@ -70,31 +69,26 @@ export async function fetchNoteById(noteId: Note["id"]) {
   );
   return response.data;
 }
-export interface FetchNotesResponse {
-  page: number;
-  notes: Note[];
-  totalPages: number;
-}
 
-export async function fetchNotesByTag(
-  tag: string,
-  page: number = 1,
-  search: string = ""
-): Promise<FetchNotesResponse> {
-  const token = process.env.NEXT_PUBLIC_NOTEHUB_TOKEN;
-  const params: Record<string, any> = { page, search };
+// export async function fetchNotesByTag(
+//   tag: string,
+//   page: number = 1,
+//   search: string = ""
+// ): Promise<FetchNotesResponse> {
+//   const token = process.env.NEXT_PUBLIC_NOTEHUB_TOKEN;
+//   const params: Record<string, any> = { page, search };
 
-  if (tag.toLowerCase() !== "all") {
-    params.tag = tag;
-  }
+//   if (tag.toLowerCase() !== "all") {
+//     params.tag = tag;
+//   }
 
-  const response = await axios.get<FetchNotesResponse>(BASE_URL, {
-    params,
-    headers: { Authorization: `Bearer ${token}` },
-  });
+//   const response = await axios.get<FetchNotesResponse>(BASE_URL, {
+//     params,
+//     headers: { Authorization: `Bearer ${token}` },
+//   });
 
-  return {
-    ...response.data,
-    notes: response.data.notes || [],
-  };
-}
+//   return {
+//     ...response.data,
+//     notes: response.data.notes || [],
+//   };
+// }
