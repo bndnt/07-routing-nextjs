@@ -12,18 +12,19 @@ const NotePreviewRoute = () => {
   const router = useRouter();
   const params = useParams();
   const noteId = params?.id;
+  const noteIdParam = Array.isArray(noteId) ? noteId[0] : noteId;
 
   const {
     data: note,
     isLoading,
     isError,
   } = useQuery<Note>({
-    queryKey: ["note", noteId],
-    queryFn: () => fetchNoteById(noteId!),
-    enabled: !!noteId,
+    queryKey: ["note", noteIdParam],
+    queryFn: () => fetchNoteById(noteIdParam!),
+    enabled: !!noteIdParam,
   });
 
-  if (!noteId) return null;
+  if (!noteIdParam) return null;
   if (isLoading) return <Modal onClose={() => router.back()}>Loading...</Modal>;
   if (isError || !note)
     return <Modal onClose={() => router.back()}>Note not found</Modal>;
@@ -33,7 +34,7 @@ const NotePreviewRoute = () => {
       <NotePreview
         note={note}
         onClose={() => router.back()}
-        fullPageLink={`/notes/${note.id}`} // ссылка на full page
+        // fullPageLink={`/notes/${note.id}`}
       />
     </Modal>
   );
