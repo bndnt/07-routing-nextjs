@@ -36,7 +36,8 @@ const NotesClient = ({ filterTag, dehydratedState }: NotesClientProps) => {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
 
-  const queryClient = new QueryClient();
+  //   створення QueryClient
+  const [queryClient] = useState(() => new QueryClient());
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -95,8 +96,8 @@ const NotesContent = ({
   if (error)
     return <ErrorHandler error={error as Error} reset={() => refetch()} />;
 
-  const notes: Note[] = data?.notes ?? [];
-  const totalPages: number = data?.totalPages ?? 0;
+  const notes = data?.notes ?? [];
+  const totalPages = data?.totalPages ?? 0;
 
   return (
     <div className={css.app}>
@@ -105,15 +106,18 @@ const NotesContent = ({
           search={search}
           onChange={(e) => debounceSearch(e.target.value)}
         />
+
         {totalPages > 1 && (
           <Pagination page={page} totalPages={totalPages} setPage={setPage} />
         )}
+
         <button onClick={openModal} className={css.button}>
           Create note +
         </button>
       </div>
 
       {isFetching && <Loader />}
+
       {!isLoading && notes.length === 0 ? (
         <p>No notes found for your search ☹️</p>
       ) : (
